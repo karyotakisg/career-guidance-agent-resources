@@ -5,12 +5,17 @@ from dotenv import load_dotenv
 import os
 
 choice = sys.argv[1]
-if choice == 'undergradute':
+if choice == 'undergraduates':
     file = 'undergraduates/undergraduates.json'
     chunk_name = 'undergraduates'
-else:
+    searchable_fields = ["University","Department","City"]
+elif choice == 'masters':
     file = 'masters/masters.json'
     chunk_name = 'masters'
+    searchable_fields = ["university","department","tuition","duration"]
+else:
+    print("Invalid choice. Please choose 'undergraduates' or 'masters'.")
+    sys.exit(1)
 
 def split_json_array(json_array, chunk_size):
     """
@@ -42,7 +47,7 @@ for i, chunk in enumerate(json_chunks):
     payload = { "data": {
             "name": f'{chunk_name}_{i+1}',
             "schema": {
-                "searchableFields": ["University","Department","City"]
+                "searchableFields": searchable_fields
             },
             "items": chunk
         } }
