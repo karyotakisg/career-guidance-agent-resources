@@ -9,10 +9,12 @@ if choice == 'undergraduates':
     file = 'undergraduates/undergraduates.json'
     chunk_name = 'undergraduates'
     searchable_fields = ["University","Department","City"]
+    tags = ["undergraduates"]
 elif choice == 'masters':
     file = 'masters/masters.json'
     chunk_name = 'masters'
     searchable_fields = ["university","department","tuition","duration"]
+    tags = ["masters"]
 else:
     print("Invalid choice. Please choose 'undergraduates' or 'masters'.")
     sys.exit(1)
@@ -28,14 +30,14 @@ with open(file, 'r', encoding='utf-8-sig') as f:
     current_json = json.load(f)
 
 
-chunk_size = 50 
+chunk_size = 50
 json_chunks = split_json_array(current_json, chunk_size)
 
 load_dotenv()
 api_key = os.getenv('API_KEY')
 
 # API URL and headers
-url = "https://api.voiceflow.com/v1/knowledge-base/docs/upload/table"
+url = f'https://api.voiceflow.com/v1/knowledge-base/docs/upload/table?overwrite=true&tags={tags}'
 headers = {
     "accept": "application/json",
     "content-type": "application/json",
@@ -45,6 +47,7 @@ headers = {
 # Post each chunk to the API
 for i, chunk in enumerate(json_chunks):
     payload = { "data": {
+            "tags": tags,
             "name": f'{chunk_name}_{i+1}',
             "schema": {
                 "searchableFields": searchable_fields
