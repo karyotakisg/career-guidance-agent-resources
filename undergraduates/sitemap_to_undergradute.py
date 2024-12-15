@@ -46,29 +46,31 @@ for url in urls:
     
     infos_json = {}
     
-    infos_json['University'] = soup.find('h4',class_='program-school undergrad-program-school').text.strip()
-    infos_json['Department'] = soup.find('h2',class_='program-title undergrad-program-title').text.strip()
-    infos_json['Field'] = [field.text.strip() for field in soup.find_all('span',class_='label programinfolabel')]
-    infos_json['City'] = soup.find_all('div', class_='col-18 col-md-11 col-lg-12')[3].get_text(strip=True)
+    infos_json['university'] = soup.find('h4',class_='program-school undergrad-program-school').text.strip()
+    infos_json['department'] = soup.find('h2',class_='program-title undergrad-program-title').text.strip()
+    infos_json['field'] = [field.text.strip() for field in soup.find_all('span',class_='label programinfolabel')]
+    infos_json['city'] = soup.find_all('div', class_='col-18 col-md-11 col-lg-12')[3].get_text(strip=True) \
+        if len(soup.find_all('div', class_='col-18 col-md-11 col-lg-12')[3].get_text(strip=True).split(',')) == 1 \
+        else soup.find_all('div', class_='col-18 col-md-11 col-lg-12')[2].get_text(strip=True)
     
     directions_html = soup.find_all('div', class_='programlabels col-18 col-md-7 col-lg-6')[4].find_next_sibling().find('p') if len(soup.find_all('div', class_='programlabels col-18 col-md-7 col-lg-6'))>=5 else None
     if directions_html:
-        infos_json['Paths'] = [line.strip() for line in directions_html.text.split('<br>')]
+        infos_json['paths'] = [line.strip() for line in directions_html.text.split('<br>')]
     rows = soup.find_all('ul', class_='exams-row row')
 
-    infos_json['Scientific Fields'] = rows[0].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 0 else None
-    infos_json['General Lyceum Base Score'] = rows[1].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 1 else None
-    if infos_json['General Lyceum Base Score'] == None:
+    infos_json['scientific_fields'] = rows[0].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 0 else None
+    infos_json['general_lyceum_base_score'] = rows[1].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 1 else None
+    if infos_json['general_lyceum_base_score'] == None:
         continue
-    infos_json['Vocational Lyceum Base Score'] = rows[2].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 2 else None
-    infos_json['Admitted Students'] = rows[3].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 3 else None
-    infos_json['ΕΒΕ coefficient'] = rows[4].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 4 else None
-    infos_json['ΕΒΕ General Lyceum'] = rows[5].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 5 else None
-    infos_json['ΕΒΕ Vocational Lyceum'] = rows[6].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 6 else None
+    infos_json['vocational_lyceum_base_score'] = rows[2].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 2 else None
+    infos_json['admitted_students'] = rows[3].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 3 else None
+    infos_json['ebe_coefficient'] = rows[4].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 4 else None
+    infos_json['ebe_general_lyceum'] = rows[5].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 5 else None
+    infos_json['ebe_vocational_lyceum'] = rows[6].find('li', class_='exams-row-info col-9').get_text(strip=True) if len(rows) > 6 else None
 
     preview = soup.find_all('div', class_='panel-body collapsible-item-preview')
     text = soup.find_all('div', class_='panel-body collapsible-item-body ver-2')
-    infos_json['Goals'] = preview[0].get_text(strip=True) + text[0].get_text(strip=True) if len(preview) > 0 and len(text) > 0 else None
+    infos_json['goals'] = preview[0].get_text(strip=True) + text[0].get_text(strip=True) if len(preview) > 0 and len(text) > 0 else None
     
     curriculum_parent = soup.find('div', class_='undergrad-curriculum')
     lists = curriculum_parent.find_all('li')
@@ -78,7 +80,7 @@ for url in urls:
     concat_text = ''.join([p.get_text(strip=True) for p in curriculum_text])
 
     #TODO make it a legit cohesive text
-    infos_json['Curriculum'] = concat_list + concat_text
+    infos_json['curriculum'] = concat_list + concat_text
     
     lab_sections = text[1].find_all('ul') if len(text) > 1 else None
     if lab_sections:
@@ -86,16 +88,16 @@ for url in urls:
         for section in lab_sections:
             labs = [li.get_text(strip=True) for li in section.find_all('li')]
             all_labs.extend(labs)
-        infos_json['Labs'] = all_labs
+        infos_json['labs'] = all_labs
     else:
-        infos_json['Labs'] = None
+        infos_json['labs'] = None
 
-    infos_json['Eduguide Url'] = url
-    infos_json['Department Url'] = soup.find('a', class_='undergradprogram_info_webpage_link').get('href') if soup.find('a', class_='undergradprogram_info_webpage_link') else None
+    infos_json['edu_guide_url'] = url
+    infos_json['department_url'] = soup.find('a', class_='undergradprogram_info_webpage_link').get('href') if soup.find('a', class_='undergradprogram_info_webpage_link') else None
     undergrad.append(infos_json)
 
 
-with open('undergraduates.json', 'w', encoding='utf-8') as json_file:
+with open('undergraduates3.json', 'w', encoding='utf-8') as json_file:
     json.dump(undergrad, json_file, ensure_ascii=False, indent=4)
 
 driver.quit()

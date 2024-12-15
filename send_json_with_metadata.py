@@ -4,17 +4,23 @@ import sys
 from dotenv import load_dotenv
 import os
 
+#searchable_fields_1 = ["university","department","field","city","scientific_fields",
+#                        "general_lyceum_base_score","vocational_lyceum_base_score","admitted_students","ebe_coefficient",
+#                        "ebe_general_lyceum","ebe_vocational_lyceum","goals","curriculum","edu_guide_url"]
+#searchable_fields_2 = ["university","department","tuition","duration","master","attendance","number_of_students","website","edu_guide_url","curriculum"]
+
 choice = sys.argv[1]
 if choice == 'undergraduates':
     file = 'undergraduates/undergraduates2.json'
     chunk_name = 'undergraduates'
-    searchable_fields = ["University","Department","City"]
-    tag = ["undergraduates"]
+    searchable_fields = ["university","department","city","scientific_fields",
+                        "general_lyceum_base_score","vocational_lyceum_base_score","admitted_students","goals","department_url"]
+    metadata = ["tag","city"]
 elif choice == 'masters':
-    file = 'masters/masters2.json'
+    file = 'masters/masters.json'
     chunk_name = 'masters'
-    searchable_fields = ["university","department","tuition","duration"]
-    tag = ["masters"]
+    searchable_fields = ["university","department","tuition","duration","master","attendance","number_of_students","website","curriculum"]
+    metadata = ["tag"]
 else:
     print("Invalid choice. Please choose 'undergraduates' or 'masters'.")
     sys.exit(1)
@@ -30,7 +36,7 @@ with open(file, 'r', encoding='utf-8-sig') as f:
     current_json = json.load(f)
 
 
-chunk_size = 200
+chunk_size = 10
 json_chunks = split_json_array(current_json, chunk_size)
 
 load_dotenv()
@@ -50,7 +56,7 @@ for i, chunk in enumerate(json_chunks):
             "name": f'{chunk_name}_{i+1}',
             "schema": {
                 "searchableFields": searchable_fields,
-                "metadataFields": ["tag"]
+                "metadataFields": metadata
             },
             "items": chunk
              } }
