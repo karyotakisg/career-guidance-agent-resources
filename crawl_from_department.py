@@ -12,6 +12,7 @@ async def main() -> None:
     )
 
     def sanitize_filename(filename):
+        filename = re.sub(r'\d+', '', filename)
         return re.sub(r'[<>:"/\\|?*]', '_', filename)
     
     crawler = BeautifulSoupCrawler(max_crawl_depth=2, max_requests_per_crawl=20, concurrency_settings=concurrency_settings)
