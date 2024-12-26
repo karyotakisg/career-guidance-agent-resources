@@ -3,11 +3,7 @@ import requests
 import sys
 from dotenv import load_dotenv
 import os
-
-#searchable_fields_1 = ["university","department","field","city","scientific_fields",
-#                        "general_lyceum_base_score","vocational_lyceum_base_score","admitted_students","ebe_coefficient",
-#                        "ebe_general_lyceum","ebe_vocational_lyceum","goals","curriculum","edu_guide_url"]
-#searchable_fields_2 = ["university","department","tuition","duration","master","attendance","number_of_students","website","edu_guide_url","curriculum"]
+import time
 
 choice = sys.argv[1]
 if choice == 'undergraduates':
@@ -17,10 +13,10 @@ if choice == 'undergraduates':
                         "general_lyceum_base_score","vocational_lyceum_base_score","admitted_students","goals","department_url"]
     metadata = ["tag","city"]
 elif choice == 'masters':
-    file = 'masters/masters.json'
+    file = 'masters/masters2.json'
     chunk_name = 'masters'
     searchable_fields = ["university","department","tuition","duration","master","attendance","number_of_students","website","curriculum"]
-    metadata = ["tag"]
+    metadata = ["tag","tuition", 'duration']
 else:
     print("Invalid choice. Please choose 'undergraduates' or 'masters'.")
     sys.exit(1)
@@ -62,5 +58,6 @@ for i, chunk in enumerate(json_chunks):
              } }
     response = requests.post(url, json=payload, headers=headers)
     print(f"Chunk {i+1}: Response: {response.status_code}, {response.text}")
+    time.sleep(0.5)
 
 print("All chunks have been processed.")
