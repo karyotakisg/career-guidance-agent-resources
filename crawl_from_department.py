@@ -4,7 +4,7 @@ from crawlee.beautifulsoup_crawler import BeautifulSoupCrawler, BeautifulSoupCra
 import os
 from crawlee import ConcurrencySettings
 import re
-from collections import defaultdict  # Add this import
+from collections import defaultdict
 
 async def main() -> None:
     concurrency_settings = ConcurrencySettings(
@@ -16,7 +16,6 @@ async def main() -> None:
         return re.sub(r'[<>:"/\\|?*]', '_', filename)
     
     crawler = BeautifulSoupCrawler(max_crawl_depth=2, max_requests_per_crawl=20, concurrency_settings=concurrency_settings)
-    # Use defaultdict to avoid needing to check if key exists
     data = defaultdict(list)
 
     def save_mapping(origin_seed, filename):
@@ -29,11 +28,19 @@ async def main() -> None:
         with open('mapping_undergraduates.json', 'w', encoding='utf-8') as f:
             json.dump(mapping, f, ensure_ascii=False, indent=4)
 
-    # Add error handling for seed URLs loading
+    # Load checkpoint
+    checkpoint_file = 'crawl_checkpoint.json'
+    try:
+        with open(checkpoint_file, 'r', encoding='utf-8') as f:
+            checkpoint = json.load(f)
+    except FileNotFoundError:
+        checkpoint = {"last_index": 0}
+
+    # Load seed URLs
     try:
         with open('undergraduates/undergraduates2.json', 'r', encoding='utf-8-sig') as f:
             degrees_json = json.load(f)
-            urls = [item['department_url'] for item in degrees_json]
+            urls = [item['department_url'] for item in degrees_json[:2]]
     except FileNotFoundError:
         print("Seeds file not found")
         return
@@ -51,7 +58,6 @@ async def main() -> None:
             body = context.soup.find_all('p')
             text = ''.join(p.get_text() for p in body).strip()
 
-            # Using defaultdict, we can append directly without checking
             data[origin_url].append({
                 'title': title,
                 'text': text,
@@ -63,9 +69,16 @@ async def main() -> None:
             print(f"Error processing {url}: {e}")
 
     batch_size = 1
-    urls = urls
-    for batch in [urls[i:i+batch_size] for i in range(0, len(urls), batch_size)]:
-        await crawler.run(batch)
+    urls_to_crawl = urls[checkpoint["last_index"]:]  # Resume from the last index
+    for index, batch in enumerate([urls_to_crawl[i:i+batch_size] for i in range(0, len(urls_to_crawl), batch_size)], start=checkpoint["last_index"]):
+        try:
+            await crawler.run(batch)
+            checkpoint["last_index"] = index + 1  # Update checkpoint after successful crawl
+            with open(checkpoint_file, 'w', encoding='utf-8') as f:
+                json.dump(checkpoint, f)
+        except Exception as e:
+            print(f"Error during crawling batch {batch}: {e}")
+            break  # Stop crawling and retain the last checkpoint
 
     # Save collected data
     output_dir = 'undergraduates_crawl'
