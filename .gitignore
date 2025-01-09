@@ -2,3 +2,5 @@
 crawl
 storage
 undergraduates_crawl
+crawl_checkpoint.json
+masters_crawl
