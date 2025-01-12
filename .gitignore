@@ -4,3 +4,6 @@ storage
 undergraduates_crawl
 crawl_checkpoint.json
 masters_crawl
+mapping_masters.json
+mapping_undergraduates.json
+masters_not_mapped.txt
