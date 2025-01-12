@@ -1,6 +1,6 @@
-# Academic Program Recommendation Agent - Crawling Scripts
+# Academic Program Recommendation Agent
 
-This repository contains the core crawling scripts for the **Academic Program Recommendation Agent**, designed to assist students and graduates in selecting academic programs based on their interests, personality, and career goals. These scripts gather and organize program data to enable personalized recommendations.
+This repository contains the core coding for the **Academic Program Recommendation Agent**, designed to assist students and graduates in selecting academic programs based on their interests, personality, and career goals. These scripts gather and organize program data to enable personalized recommendations.
 
 ---
 
