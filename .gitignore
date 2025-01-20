@@ -7,3 +7,4 @@ masters_crawl
 mapping_masters.json
 mapping_undergraduates.json
 masters_not_mapped.txt
+*.xlsx
