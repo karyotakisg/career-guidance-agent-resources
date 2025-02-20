@@ -15,12 +15,23 @@ if choice == 'undergraduates':
     df['text'] = df['text'].str.encode('utf-8', errors='ignore').str.decode('utf-8', errors='ignore')
     df.to_excel('undergraduates/undergraduates.xlsx',index=False)
 elif choice == 'masters':
-    with open('masters/masters.json',encoding='utf-8-sig') as f:
+    with open('masters/masters2.json',encoding='utf-8-sig') as f:
         data = json.load(f)
     data = pd.DataFrame(data)
-    data['title'] = data['university'] + ":  " + data['master']
-    df = pd.DataFrame()
-    df['title'] = data['title']
-    df['department_url'] = data['website']
-    df['text'] = data['curriculum']
-    df.to_excel('masters/masters.xlsx',index=False)
+    data.drop(columns=['number_of_students','tag'], inplace=True)
+    data = data[~data['university'].str.match(r'^[A-Za-z]')]
+    data = data[~data['university'].str.contains('Πανεπιστήμιο Λευκωσίας')]
+    data['tuition'] = data['tuition'].astype(str)
+    data['duration'] = data['duration'].astype(str)
+    data = data[~(data['tuition'].str.contains('εξάμηνα') | data['tuition'].str.contains('Εξάμηνα'))]
+    data['tuition'] = data['tuition'].str.replace('euro', '')
+    data = data[~data['tuition'].str.contains('Με δίδακτρα')]
+    data['tuition'] = data['tuition'].str.replace('.', '0')
+    data['duration'] = data['duration'].str.replace('.', '0')
+    data['tuition'] = data['tuition'].astype(int)
+    data['duration'] = data['duration'].astype(int)
+    data['duration'].rename('duration (semesters)', inplace=True)
+
+    
+
+    data.to_excel('masters/masters.xlsx',index=False)
